@@ -4,7 +4,7 @@ import FLAnimatedImage
 
 class PhotoRepresentableMessageCell: DetailInfoMessageCell {
     
-    let contentImageView = FLAnimatedImageView()
+    let contentImageView = VerticalPositioningImageView()
     let shadowImageView = UIImageView()
     lazy var selectedOverlapView: UIView = {
         let view = SelectedOverlapView()
@@ -28,7 +28,6 @@ class PhotoRepresentableMessageCell: DetailInfoMessageCell {
         super.render(viewModel: viewModel)
         if let viewModel = viewModel as? PhotoRepresentableMessageViewModel {
             contentImageView.frame = viewModel.contentFrame
-            contentImageView.layer.mask = backgroundImageView.layer
             selectedOverlapView.frame = contentImageView.bounds
 
             shadowImageView.image = viewModel.shadowImage
@@ -51,6 +50,7 @@ class PhotoRepresentableMessageCell: DetailInfoMessageCell {
         contentImageView.addSubview(selectedOverlapView)
         super.prepare()
         backgroundImageView.removeFromSuperview()
+        contentImageView.layer.mask = backgroundImageView.layer
     }
     
     override func updateAppearance(highlight: Bool, animated: Bool) {
@@ -100,6 +100,75 @@ extension PhotoRepresentableMessageCell {
             super.backgroundColor = dimmingColor
         }
 
+    }
+    
+    class VerticalPositioningImageView: UIView {
+        
+        enum Position {
+            case top, center
+        }
+        
+        let imageView = FLAnimatedImageView()
+
+        var position = Position.center {
+            didSet {
+                setNeedsLayout()
+            }
+        }
+        
+        var image: UIImage? {
+            get {
+                return imageView.image
+            }
+            set {
+                aspectRatio = newValue?.size ?? .zero
+                imageView.image = newValue
+                setNeedsLayout()
+            }
+        }
+        
+        var aspectRatio = CGSize.zero
+        
+        required init?(coder aDecoder: NSCoder) {
+            super.init(coder: aDecoder)
+            prepare()
+        }
+        
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+            prepare()
+        }
+        
+        override func layoutSubviews() {
+            super.layoutSubviews()
+            if aspectRatio.width <= 1 {
+                aspectRatio = CGSize(width: 1, height: 1)
+            }
+            imageView.bounds.size = CGSize(width: bounds.width, height: bounds.width * aspectRatio.height / aspectRatio.width)
+            switch position {
+            case .center:
+                imageView.center = CGPoint(x: bounds.width / 2, y: bounds.height / 2)
+            case .top:
+                imageView.frame.origin = .zero
+            }
+        }
+        
+        func setImage(with url: URL, ratio: CGSize) {
+            imageView.sd_setImage(with: url, completed: nil)
+            aspectRatio = ratio
+            setNeedsLayout()
+        }
+        
+        func cancelCurrentImageLoad() {
+            imageView.sd_cancelCurrentImageLoad()
+        }
+        
+        private func prepare() {
+            addSubview(imageView)
+            imageView.contentMode = .scaleToFill
+            clipsToBounds = true
+        }
+        
     }
 
 }
