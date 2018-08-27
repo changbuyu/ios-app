@@ -267,6 +267,8 @@ extension HomeViewController: UITableViewDataSource, UITableViewDelegate {
         tableView.endUpdates()
         DispatchQueue.global().async {
             MessageDAO.shared.clearChat(conversationId: conversation.conversationId, autoNotification: false)
+            MixinFile.cleanAllChatDirectories()
+            NotificationCenter.default.postOnMain(name: .StorageUsageDidChange)
         }
     }
 
