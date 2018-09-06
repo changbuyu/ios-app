@@ -26,7 +26,7 @@ class StickerMessageCell: DetailInfoMessageCell {
         super.render(viewModel: viewModel)
         if let viewModel = viewModel as? StickerMessageViewModel, let assetUrl = viewModel.message.assetUrl {
             contentImageView.frame = viewModel.contentFrame
-            contentImageView.sd_setImage(with: URL(string: assetUrl))
+            contentImageView.animationSafeSetImage(url: URL(string: assetUrl))
         }
     }
     

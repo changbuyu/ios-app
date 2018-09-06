@@ -199,10 +199,12 @@ let muteDuration1Year: Int64 = 365 * 24 * 60 * 60
 
 enum ExtensionName: String {
     
+    case gif
+    case webp
     case jpeg = "jpg"
-    case mp4 = "mp4"
-    case html = "html"
-    case ogg = "ogg"
+    case mp4
+    case html
+    case ogg
     
     var withDot: String {
         return "." + rawValue
